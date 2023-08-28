@@ -1,39 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Currency</title>
-        <script>
-                document.addEventListener('DOMContentLoaded', function() {
+<head>
+    <title>Currency Converter</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-                    document.querySelector('form').onsubmit = function() {
+            document.querySelector('form').onsubmit = function() {
+                const fromCurrency = document.querySelector('#fromCurrency').value.toUpperCase();
+                const toCurrency = document.querySelector('#toCurrency').value.toUpperCase();
+                const amount = parseFloat(document.querySelector('#amount').value);
 
-                        fetch('https://api.exchangerate.host/latest?base=USD')
-                    .then(response => response.json())  //convert to json
+                fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`)
+                    .then(response => response.json())
                     .then(data => {
-                        const currency = document.querySelector('#currency').value.toUpperCase();
-                        const rate = data.rates[currency];
+                        const exchangeRates = data.rates;
+                        const rate = exchangeRates[toCurrency];
                         if (rate !== undefined) {
-                            document.querySelector('body').innerHTML = `1 INR is equal to ${rate.toFixed(3)} ${currency} .`;
+                            const convertedAmount = (amount * rate).toFixed(3);
+                            document.querySelector('#result').innerHTML = `${amount} ${fromCurrency} is equal to ${convertedAmount} ${toCurrency}.`;
                         } else {
-                            document.querySelector('#result').innerHTML = "Invalid currency";
+                            document.querySelector('#result').innerHTML = "Invalid currency or data not available.";
                         }
-                    })    //toFixed function is used to round off to given decimal places
-                        .catch(error => {
-                            console.log('Error:', error);
-                        });
-                        return false
-                    }
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
+                    });
 
-                });
-        </script>
-    </head>
-    <body>
-        <form>
-            <input id="currency" placeholder="Currency" type="text">
-            <input type="submit" value="Convert">
-        </form>
-        <div id="result">
+                return false;
+            }
 
-        </div>
-    </body>
+        });
+    </script>
+</head>
+<body>
+    <form>
+        <input id="fromCurrency" placeholder="From Currency" type="text">
+        <input id="toCurrency" placeholder="To Currency" type="text">
+        <input id="amount" placeholder="Amount" type="number">
+        <input type="submit" value="Convert">
+    </form>
+    <div id="result"></div>
+</body>
 </html>
